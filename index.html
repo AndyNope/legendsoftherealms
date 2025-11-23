@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Wargame - Legends of the Realm</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Game Icons - Updated CDN -->
+    <link rel="stylesheet" href="https://game-icons.net/icons.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="main-menu" class="menu-screen">
+        <div class="menu-container">
+            <h1 class="game-title">Legends of the Realm</h1>
+            <div class="menu-buttons">
+                <button class="menu-btn" onclick="startStoryMode()">
+                    <span class="btn-icon">📜</span>
+                    Story-Modus
+                </button>
+                <button class="menu-btn" onclick="startBattleMode()">
+                    <span class="btn-icon">⚔️</span>
+                    Battle-Modus
+                </button>
+                <button class="menu-btn" onclick="showSettings()">
+                    <span class="btn-icon">⚙️</span>
+                    Einstellungen
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="story-select" class="menu-screen hidden">
+        <div class="menu-container">
+            <h2>Wähle deine Mission</h2>
+            <div class="mission-list" id="mission-list">
+                <!-- Missions werden hier dynamisch eingefügt -->
+            </div>
+            <button class="menu-btn back-btn" onclick="backToMenu()">Zurück</button>
+        </div>
+    </div>
+
+    <div id="game-container" class="hidden">
+        <div id="game-ui">
+            <div class="top-bar">
+                <div class="resources">
+                    <div class="resource-item">
+                        <span class="resource-icon"><i class="fa-solid fa-coins"></i></span>
+                        <span id="gold">1000</span>
+                    </div>
+                    <div class="resource-item">
+                        <span class="resource-icon"><i class="fa-solid fa-tree"></i></span>
+                        <span id="wood">500</span>
+                    </div>
+                    <div class="resource-item">
+                        <span class="resource-icon"><i class="fa-solid fa-gem"></i></span>
+                        <span id="mana">200</span>
+                    </div>
+                </div>
+                <div class="mission-info">
+                    <h3 id="mission-title">Mission Name</h3>
+                    <p id="mission-objective">Objective</p>
+                </div>
+                <div class="game-controls">
+                    <button class="control-btn" id="music-toggle" onclick="toggleMusic()"><i class="fa-solid fa-volume-high"></i></button>
+                    <button class="control-btn" onclick="pauseGame()"><i class="fa-solid fa-pause"></i> Pause</button>
+                    <button class="control-btn" onclick="showGameMenu()"><i class="fa-solid fa-bars"></i> Menü</button>
+                </div>
+            </div>
+
+            <div class="game-view">
+                <canvas id="gameCanvas"></canvas>
+                
+                <div id="minimap">
+                    <canvas id="minimapCanvas"></canvas>
+                </div>
+            </div>
+
+            <div class="bottom-bar">
+                <div id="selected-unit-info" class="unit-info hidden">
+                    <div class="unit-portrait">
+                        <canvas id="unitPortrait"></canvas>
+                    </div>
+                    <div class="unit-details">
+                        <h4 id="unit-name">Einheit</h4>
+                        <div class="stat-bars">
+                            <div class="stat-bar">
+                                <span>HP:</span>
+                                <div class="bar health-bar">
+                                    <div id="unit-health" class="bar-fill"></div>
+                                </div>
+                            </div>
+                            <div class="stat-bar">
+                                <span>MP:</span>
+                                <div class="bar mana-bar">
+                                    <div id="unit-mana" class="bar-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="unit-abilities" id="unit-abilities">
+                        <!-- Abilities werden hier dynamisch eingefügt -->
+                    </div>
+                </div>
+
+                <div id="unit-production" class="production-panel">
+                    <h4>Einheiten erstellen</h4>
+                    <div class="unit-buttons" id="unit-buttons">
+                        <!-- Unit buttons werden hier dynamisch eingefügt -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pause-menu" class="overlay hidden">
+        <div class="menu-container">
+            <h2>Spiel pausiert</h2>
+            <button class="menu-btn" onclick="resumeGame()">Weiter</button>
+            <button class="menu-btn" onclick="restartMission()">Neustart</button>
+            <button class="menu-btn" onclick="quitToMenu()">Zum Hauptmenü</button>
+        </div>
+    </div>
+
+    <div id="victory-screen" class="overlay hidden">
+        <div class="menu-container victory">
+            <h2>🎉 Sieg! 🎉</h2>
+            <p id="victory-message"></p>
+            <button class="menu-btn" onclick="nextMission()">Nächste Mission</button>
+            <button class="menu-btn" onclick="quitToMenu()">Hauptmenü</button>
+        </div>
+    </div>
+
+    <div id="defeat-screen" class="overlay hidden">
+        <div class="menu-container defeat">
+            <h2>💀 Niederlage 💀</h2>
+            <p id="defeat-message"></p>
+            <button class="menu-btn" onclick="restartMission()">Nochmal versuchen</button>
+            <button class="menu-btn" onclick="quitToMenu()">Hauptmenü</button>
+        </div>
+    </div>
+
+    <div id="settings-screen" class="overlay hidden">
+        <div class="menu-container">
+            <h2>⚙️ Einstellungen</h2>
+            <div class="settings-content">
+                <div class="setting-item">
+                    <label for="music-volume">🎵 Musik-Lautstärke:</label>
+                    <input type="range" id="music-volume" min="0" max="100" value="50" oninput="updateMusicVolume(this.value)">
+                    <span id="music-volume-label">50%</span>
+                </div>
+                <div class="setting-item">
+                    <label for="sfx-volume">🔊 Sound-Effekte:</label>
+                    <input type="range" id="sfx-volume" min="0" max="100" value="70" oninput="updateSfxVolume(this.value)">
+                    <span id="sfx-volume-label">70%</span>
+                </div>
+                <div class="setting-item">
+                    <label for="scroll-speed">🖱️ Scroll-Geschwindigkeit:</label>
+                    <input type="range" id="scroll-speed" min="5" max="30" value="10" oninput="updateScrollSpeed(this.value)">
+                    <span id="scroll-speed-label">10</span>
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="show-grid" checked onchange="toggleGrid(this.checked)">
+                        Gitter anzeigen
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <input type="checkbox" id="edge-scroll" checked onchange="toggleEdgeScroll(this.checked)">
+                        Rand-Scrolling aktivieren
+                    </label>
+                </div>
+            </div>
+            <button class="menu-btn" onclick="closeSettings()">Zurück</button>
+        </div>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="background-music" loop>
+        <source src="music/bgm1.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="click-sound"></audio>
+    <audio id="attack-sound"></audio>
+    <audio id="build-sound"></audio>
+
+    <!-- JavaScript Files -->
+    <script src="js/config.js"></script>
+    <script src="js/units.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/pathfinding.js"></script>
+    <script src="js/missions.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
