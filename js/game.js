@@ -447,9 +447,9 @@ class Game {
             return;
         }
         
-        // Check if player has no units and cannot afford any
+        // Only check for no-units game over if player has less than 50 gold AND no units
         const playerUnits = this.units.filter(u => u.owner === 'player' && u.state !== 'dead');
-        if (playerUnits.length === 0) {
+        if (playerUnits.length === 0 && this.resources.gold < 50) {
             // Check if player can afford cheapest unit
             const cheapestUnit = this.getCheapestUnit();
             if (cheapestUnit) {

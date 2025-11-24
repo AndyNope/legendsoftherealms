@@ -680,11 +680,12 @@ class MissionManager {
         switch (objective.type) {
             case 'eliminate':
                 const enemyUnits = game.units.filter(u => u.owner === 'enemy' && u.state !== 'dead');
-                return enemyUnits.length === 0;
+                const enemyBuildings = game.buildings.filter(b => b.owner === 'enemy' && b.stats.health > 0);
+                return enemyUnits.length === 0 && enemyBuildings.length === 0;
                 
             case 'destroy':
-                const enemyBuildings = game.buildings.filter(b => b.owner === 'enemy');
-                return enemyBuildings.length === 0;
+                const buildings = game.buildings.filter(b => b.owner === 'enemy' && b.stats.health > 0);
+                return buildings.length === 0;
                 
             case 'rescue':
                 // Check if princess is near player castle

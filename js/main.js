@@ -42,21 +42,28 @@ const AudioManager = {
     },
     
     playMusic() {
-        if (!this.musicEnabled || this.musicPlaying) return;
+        if (!this.musicEnabled) return;
         
-        // Try to play the audio file first
-        if (this.music && this.music.src) {
+        // Try to play the audio file
+        if (this.music) {
             this.music.play().then(() => {
-                console.log('Background music started');
+                console.log('Background music started successfully');
                 this.musicPlaying = true;
             }).catch(e => {
-                console.log('Music play failed, trying synthesized:', e);
-                // Fallback to synthesized music
-                this.playSynthesizedMusic();
+                console.log('Music autoplay blocked or failed:', e);
+                console.log('Click anywhere to start music');
+                // Add click listener to start music on user interaction
+                const startMusic = () => {
+                    if (!this.musicPlaying) {
+                        this.music.play().then(() => {
+                            console.log('Music started after user interaction');
+                            this.musicPlaying = true;
+                        }).catch(err => console.log('Still failed:', err));
+                    }
+                    document.removeEventListener('click', startMusic);
+                };
+                document.addEventListener('click', startMusic);
             });
-        } else {
-            // No audio file, use synthesized
-            this.playSynthesizedMusic();
         }
     },
     
